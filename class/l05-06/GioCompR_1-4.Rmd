@@ -1,0 +1,14 @@
+---
+title: "GioCompR_1-4"
+output: github_document
+---
+```{r GioConmpR-1}
+library(leaflet)
+popup = c("Robin", "Jakub", "Jannes")
+leaflet() %>%
+  addProviderTiles("Stamen.Toner") %>%
+  addMarkers(lng = c(-3, 23, 11),
+             lat = c(52, 53, 49),
+             popup = popup)
+```
+
