@@ -32,7 +32,6 @@ world_coffee_inner
 plot(world_coffee_inner["coffee_production_2017"])
 ```
 
-
 ```{r chapter 3.2.4}
 world_new = world # do not overwrite our original data
 world_new$pop_dens = world_new$pop / world_new$area_km2
@@ -173,12 +172,3 @@ random_joined = st_join(random_points, world["name_long"])
 #sum(st_geometry(cycle_hire) %in% st_geometry(cycle_hire_osm))
 #sum(st_coordinates(cycle_hire)[, 1] %in% st_coordinates(cycle_hire_osm)[, 1])
 ```
-
-```{r}
-
-```
-
-
-
-
-
