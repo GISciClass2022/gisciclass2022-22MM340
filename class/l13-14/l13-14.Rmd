@@ -1,0 +1,45 @@
+---
+title: "l13-14"
+author: "TA"
+date: "2022/5/31"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libaries, message=FALSE, include=FALSE }
+library(sf)
+library(tidyverse)
+library(raster)
+library(dplyr)
+library(spData)
+library(spDataLarge)
+library(tmap)    # for static and interactive maps
+library(leaflet) # for interactive maps
+library(ggplot2) # tidyverse data visualization package
+library(XML)
+
+```
+
+
+```{r map Saitama}
+#japan_map = st_read("~/class/data/JPN_adm/JPN_adm1.shp")
+#Saitama=japan_map %>% filter(NAME_1 =="Saitama")
+Saitama = st_read("~/class/data/N03-20210101_11_GML/N03-21_11_210101.shp")
+japan_railroad = st_read("~/class/data/N02-20_GML/N02-20_RailroadSection.shp")
+Saitama_railroad <- st_intersection(Saitama, japan_railroad)
+Saitama_Shinkansen <- Saitama_railroad %>% filter(N02_002 =="1")
+People = st_read("~/class/data/ZinkouSyutyuTiku/A16-05_11_DI01.shp")
+
+tm_shape(Saitama) +
+  tm_polygons(col = "white") +
+tm_shape(People) +
+  tm_polygons(col = "red",alpha = 0.7,border.alpha = 0) +
+tm_shape(Saitama_railroad) +
+  tm_lines(col = "green") +
+tm_shape(Saitama_Shinkansen) +
+  tm_lines(col = "blue")
+
+```
