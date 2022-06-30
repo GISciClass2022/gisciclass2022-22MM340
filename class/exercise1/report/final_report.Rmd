@@ -3,13 +3,13 @@ title: "GIScience class final report"
 author: "Takumi Abiko"
 date: "2022/6/30"
 output:
-  github_document:
-    toc: yes
   html_document:
     df_print: paged
     theme: flatly
     toc: yes
     toc_float: true
+  github_document:
+    toc: yes
 subtitle: "埼玉県の人口密集地区の変遷"
 fontsize: 11pt
 linestretch: 1.2
