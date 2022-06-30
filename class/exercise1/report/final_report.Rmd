@@ -1,16 +1,16 @@
 ---
 title: "GIScience class final report"
-author: "YOUR NAME"
-date: "SUBMISSION DATE"
+author: "Takumi Abiko"
+date: "2022/6/30"
 output:
+  github_document:
+    toc: yes
   html_document:
     df_print: paged
     theme: flatly
     toc: yes
     toc_float: true
-  github_document:
-    toc: yes
-subtitle: "テーマ or タイトル"
+subtitle: "埼玉県の人口密集地区の変遷"
 fontsize: 11pt
 linestretch: 1.2
 link-citations: yes
@@ -18,52 +18,154 @@ bibliography: bibliography.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE,message = FALSE,warning = FALSE)
 ```
 
 ## 0. 要旨
-AAAAAAAAAAAAAAAA. 
-BBBBBBBBBBBBBBBB. 
-CCCCCCCCCCCCCCC.   
+本レポートでは、東京圏の人口増加や、東京一極集中問題に関連して、埼玉県の人口集中地区の変遷について調べる。
 
+分析の結果、1970年から1990年にかけて埼玉県の人口集中地区が大幅に増加していることが確認できた。さらにその後も、2015年にかけて徐々に増加している。
+
+東京圏が少子高齢化による人口減少に転じるには、まだ時間がかかると予想されているため、今後も埼玉県の人口は徐々に増加していくだろう。
 
 
 <br>
 <br>
-  
-  下のフォーマットは一例です。　
-レポートの構成は多少替えても大丈夫です。
 
 ## 1. はじめに
 ### 1.1 背景
-XXXXXXXX。 
-Toblerは... [@tobler1970computer]。
-XXXXXXXXXXXX。  
+近年、東京都の人口が増加している。さらには、東京一極集中問題などの問題が起きている。東京一極集中問題とは、政治、経済、文化、人口などの社会における資本。資源。活動が首都圏に集中している状況のことをいう。宮野は「東京一極集中の背景には,70年代中葉以降の日本経済の構造変化と80年代以降の世界経済の構造変化がある。」としている[@宮野雄一1994東京一極集中と地方自治]。
+
+また、埼玉県は東京に隣接している県であるため、埼玉に居住し、東京に通勤する人が多くいる。 
 
 ### 1.2 目的
-XXXXXXXX。   
+東京一極集中問題に関連して、埼玉県の年代別の人口密集地区の変遷について調べる。また、鉄道との相関についても考える。   
 
 ## 2. 手法
-XXXXXXXX。
-XXXXXXXXXXXX。  
+R言語による地図データを用いた処理を利用して分析を行う。  
 
 ## 3. データ
-XXXXXXXX。
-XXXXXXXXXXXX。  
+埼玉県の地図データは2021年時点でのデータを使用している。
+
+鉄道データは2020時点年でのデータを使用している。
+
+人口密集地区データは1970年,1990年,2005年,2015年時点でのデータを使用している。
+
+上記データはすべて国土交通省が公開している国土数値情報ダウンロードサービスより入手した。
+```{r libaries, include=FALSE}
+#使用するライブラリを読み込む
+library(sf)
+library(dplyr)
+library(tmap) # for static and interactive maps
+```
+
+```{r map Saitama-data}
+#地図データを読み込む
+Saitama = st_read("~/class/data/N03-20210101_11_GML/N03-21_11_210101.shp"
+                  ,quiet=TRUE)#埼玉県の地図データ
+japan_railroad = st_read("~/class/data/N02-20_GML/N02-20_RailroadSection.shp"
+                         ,quiet=TRUE)#日本全国の鉄道路線データ
+Saitama_railroad <- st_intersection(Saitama
+                                    ,japan_railroad)#埼玉県内の鉄道路線データのみ抽出
+Saitama_Shinkansen <- Saitama_railroad %>% 
+  filter(N02_002 =="1")#埼玉県内の新幹線路線データを抽出
+People_1970 = st_read("~/class/data/ZinkouSyutyuTiku/A16-70_11/A16-70_11_DI01.shp"
+                      ,quiet=TRUE)#1970年時点の人口密集地区データ
+People_1990 = st_read("~/class/data/ZinkouSyutyuTiku/A16-90_11/A16-90_11_DI01.shp"
+                      ,quiet=TRUE)#1990年時点の人口密集地区データ
+People_2005 = st_read("~/class/data/ZinkouSyutyuTiku/A16-05_11/A16-05_11_DI01.shp"
+                      ,quiet=TRUE)#2005年時点の人口密集地区データ
+People_2015 = st_read("~/class/data/ZinkouSyutyuTiku/A16-15_11_GML/A16-15_11_DID.shp"
+                      ,quiet=TRUE)#2015年時点の人口密集地区データ
+
+#人口密集地区データはxmlファイルでうまく扱うことができなかったため、国土交通省が配布している国土数値情報XML-シェープ変換ツールを使用しました。
+```
 
 ## 4. 結果
-XXXXXXXX。
-XXXXXXXXXXXX。  
+埼玉県の地図上に鉄道の情報と人口密集地区データを表示させた。
+
+鉄道は在来線を緑、新幹線を青で表示している。赤く表示されている箇所が人口が密集している地区である。
+
+1970年時点での地図を以下に示す。
+
+```{r Saitama-1970}
+tm_shape(Saitama) + #埼玉県の地図データを入力
+  tm_polygons(col = "white") + #色を白に指定
+tm_shape(People_1970) + #1970年時点の人口密集地区データを入力
+  tm_polygons(col = "red",alpha = 0.7
+              ,border.alpha = 0) + #色を赤に、透明度を0.7,境界線を透明に指定
+tm_shape(Saitama_railroad) + #埼玉県の鉄道路線データを入力
+  tm_lines(col = "green") + #色を緑に指定
+tm_shape(Saitama_Shinkansen) + #埼玉県の新幹線データを入力
+  tm_lines(col = "blue") #色を青に指定
+```
+
+同様に1990年時点での地図を以下に示す。
+
+```{r Saitama-1990}
+tm_shape(Saitama) + #埼玉県の地図データを入力
+  tm_polygons(col = "white") + #色を白に指定
+tm_shape(People_1990) + #1990年時点の人口密集地区データを入力
+  tm_polygons(col = "red",alpha = 0.7
+              ,border.alpha = 0) + #色を赤に、透明度を0.7,境界線を透明に指定
+tm_shape(Saitama_railroad) + #埼玉県の鉄道路線データを入力
+  tm_lines(col = "green") + #色を緑に指定
+tm_shape(Saitama_Shinkansen) + #埼玉県の新幹線データを入力
+  tm_lines(col = "blue") #色を青に指定
+```
+
+同様に2005年時点での地図を以下に示す。
+
+```{r Saitama-2005}
+tm_shape(Saitama) + #埼玉県の地図データを入力
+  tm_polygons(col = "white") + #色を白に指定
+tm_shape(People_2005) + #2005年時点の人口密集地区データを入力
+  tm_polygons(col = "red",alpha = 0.7
+              ,border.alpha = 0) + #色を赤に、透明度を0.7,境界線を透明に指定
+tm_shape(Saitama_railroad) + #埼玉県の鉄道路線データを入力
+  tm_lines(col = "green") + #色を緑に指定
+tm_shape(Saitama_Shinkansen) + #埼玉県の新幹線データを入力
+  tm_lines(col = "blue") #色を青に指定
+```
+
+同様に2015年時点での地図を以下に示す。
+
+```{r Saitama-2015}
+tm_shape(Saitama) + #埼玉県の地図データを入力
+  tm_polygons(col = "white") + #色を白に指定
+tm_shape(People_2015) + #2015年時点の人口密集地区データを入力
+  tm_polygons(col = "red",alpha = 0.7
+              ,border.alpha = 0) + #色を赤に、透明度を0.7,境界線を透明に指定
+tm_shape(Saitama_railroad) + #埼玉県の鉄道路線データを入力
+  tm_lines(col = "green") + #色を緑に指定
+tm_shape(Saitama_Shinkansen) + #埼玉県の新幹線データを入力
+  tm_lines(col = "blue") #色を青に指定
+```
 
 ## 5. 考察
-XXXXXXXX。
-XXXXXXXXXXXX。  
+1970年時点でのデータより、県北では鉄道の沿線沿いに人口密集地区が点在していることから、鉄道の駅周辺に居住していることが読み取れる。また、県南では鉄道から少し離れた場所でも人口密集地区があることから、東京に近く通勤しやすいために、県南部に人が集中していると考えられる。
+
+以降年代を重ねるごとに人口密集地区が増加していっていることが分かる。東京に隣接していて通勤に便利であるため、人口が増加していると考えられる。この現象は、東京一極化問題に起因する現象だといえる。
 
 ## 6. 結論
-XXXXXXXX。
-XXXXXXXXXXXX。  
+今回、東京都の人口増加に関連して、埼玉県の年代別の人口密集地区の変遷について調べた。1970年から1990年にかけて人口密集地区が、かなり増加していることが分かった。
+
+東京一極集中問題やそれに伴う地方の少子高齢化問題など、すぐに解決できる問題ではないが今後、地道に改善されることを期待したい。
 
 ## 7. Graphic Abstract
-レポートを表す１枚の図をここで示す。
+
+2015年時点での地図を以下に示す。
+
+```{r map Saitama-2015}
+tm_shape(Saitama) + #埼玉県の地図データを入力
+  tm_polygons(col = "white") + #色を白に指定
+tm_shape(People_2015) + #2015年時点の人口密集地区データを入力
+  tm_polygons(col = "red",alpha = 0.7
+              ,border.alpha = 0) + #色を赤に、透明度を0.7,境界線を透明に指定
+tm_shape(Saitama_railroad) + #埼玉県の鉄道路線データを入力
+  tm_lines(col = "green") + #色を緑に指定
+tm_shape(Saitama_Shinkansen) + #埼玉県の新幹線データを入力
+  tm_lines(col = "blue") #色を青に指定
+```
 
 ## 8. 参考文献
