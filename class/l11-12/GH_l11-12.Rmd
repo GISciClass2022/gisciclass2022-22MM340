@@ -1,0 +1,34 @@
+---
+title: "l11-12"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libaries, message=FALSE, echo = FALSE }
+library(sf)
+library(tidyverse)
+library(raster)
+library(dplyr)
+library(spData)
+library(spDataLarge)
+library(tmap)    # for static and interactive maps
+library(leaflet) # for interactive maps
+library(ggplot2) # tidyverse data visualization package
+#library(japandistrict)
+```
+
+
+```{r map}
+#japn_roads = st_read("~/class/data/JPN_rds/JPN_roads.shp")
+japn_hazzard = st_read("~/class/data/A31-12_11_GML/A31-12_11.shp")
+#japn_msk_pop = raster("~/class/data/JPN_msk_pop/jpn_msk_pop.vrt")
+
+
+#tm_shape(japn_msk_pop) +
+#   tm_raster() +
+tm_shape(japn_hazzard) +
+  tm_polygons()
+```
